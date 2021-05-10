@@ -1,0 +1,100 @@
+﻿@inherits AppStateComponent
+@inject E1Service E1
+
+<div class="form-group row">
+    <div class="col">
+        <div class="row no-gutters">
+            <div class="col-auto">
+                <input type="search"
+                       placeholder="UBE name starts with and optional search words"
+                       class="col-3 form-control"
+                       size="5"
+                       style="width:400px;"
+                       @bind="@UBE"
+                       @oninput="@ChangeUBE" />
+            </div>
+            <div class="col-auto">
+                <span class="input-group-text" style="width:600px">@CaptionUBE</span>
+            </div>
+        </div>
+        @if (SearchUBE.Count() > 1)
+        {
+            <div class="row options-dropdown" style="position:absolute;">
+                <div class="col p-0 list-group">
+                    @foreach (var r in SearchUBE)
+                    {
+                        <button class="list-group-item list-group-item-action"
+                        @onclick="@(() => SelectUBE(r))">
+                            <div class="row">
+                                <div class="col-3">@r.F9860_OBNM</div>
+                                <div class="col">@r.F9860_MD</div>
+                            </div>
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    bool Busy { get; set; }
+    readonly Debouncer Debouncer = new Debouncer(500);
+    System.Threading.CancellationTokenSource Query;
+    string UBE { get; set; }
+    string CaptionUBE => SearchUBE.Count() == 1
+        ? SearchUBE.First().F9860_MD
+        : Busy ? "Searching..." : "Select UBE...";
+    IEnumerable<F9860.Row> SearchUBE = Enumerable.Empty<F9860.Row>();
+    async void SelectUBE(F9860.Row r)
+    {
+        UBE = r.F9860_OBNM.Trim() ?? UBE;
+        SearchUBE = new F9860.Row[] { r };
+        await Mediator.Send(new AppState.SelectUBEAction { UBE = r });
+    }
+    async Task FindUBE(string startsWith)
+    {
+        try
+        {
+            Query = new System.Threading.CancellationTokenSource(4000);
+            Busy = true;
+            await InvokeAsync(StateHasChanged);
+            var rs = await E1.RequestAsync<F9860.Response>(new F9860.Request(startsWith), Query.Token);
+            if (rs.fs_DATABROWSE_F9860.data.gridData.summary.records == 0)
+            {
+                SearchUBE = new F9860.Row[] { new F9860.Row { F9860_MD = "Not Found!" } };
+            }
+            else
+            {
+                if (rs.fs_DATABROWSE_F9860.data.gridData.summary.records == 1)
+                {
+                    SelectUBE(rs.fs_DATABROWSE_F9860.data.gridData.rowset[0]);
+                }
+                else
+                {
+                    SearchUBE = rs.fs_DATABROWSE_F9860.data.gridData.rowset;
+                }
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch { }
+        Busy = false;
+        await InvokeAsync(StateHasChanged);
+    }
+    void ChangeUBE(ChangeEventArgs e)
+    {
+        Debouncer.Debounce(() =>
+        {
+            Query?.Cancel();
+            if (string.IsNullOrEmpty(e.Value.ToString()))
+            {
+                SearchUBE = Enumerable.Empty<F9860.Row>();
+                InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                _ = FindUBE(e.Value.ToString());
+            }
+        });
+    }
+}

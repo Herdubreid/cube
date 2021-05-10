@@ -1,0 +1,27 @@
+﻿@page "/"
+@inherits AppStateComponent
+
+<div class="row m-2">
+    <div id="versionlist" class="col-3 list-group">
+        @foreach (var v in State.VersionList)
+        {
+            <button class=@($"list-group-item list-group-item-action {(v.Selected ? "bg-secondary text-light" : string.Empty)}")
+                @onclick="@(() => ToggleVersionSelection(v))">
+                <div class="row">
+                    <div class="col-3">@v.F983051_VERS</div>
+                    <div class="col">@v.F983051_JD</div>
+                </div>
+            </button>
+        }
+    </div>
+    <div class="col">
+        <POtemplate />
+    </div>
+</div>
+
+@code {
+    void ToggleVersionSelection(F983051.Row row)
+    {
+        Mediator.Send(new AppState.ToggleVersionDisplayAction { Version = row });
+    }
+}
