@@ -16,43 +16,277 @@ else
             else
             {
                 <nav>
-                    <ul class="nav nav-tabs" id="po-pages" role="presentation">
-                        @foreach (var p in T.poPrompt.tabPages)
-                        {
-                            <li class="nav-item">
-                                <button class="nav-link"
-                            id="@($"page-{p.pageNumber}-tab")"
+                    <ul class="nav nav-tabs" id="version" role="presentation">
+                        <li class="nav-item">
+                            <button class="nav-link"
+                            id="po-options-tab"
                             role="tab"
                             data-bs-toggle="tab"
-                            data-bs-target="@($"#page-{p.pageNumber}")">
-                                    @p.title
-                                </button>
-                            </li>
-                        }
+                            data-bs-target="#po-options">
+                                POs
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link"
+                            id="data-options-tab"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#data-options">
+                                Data
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link"
+                            id="about-tab"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#about">
+                                About
+                            </button>
+                        </li>
                     </ul>
-                    <div class="tab-content" id="po-pages-content">
-                        @foreach (var p in T.poPrompt.tabPages)
-                        {
-                            <div class="tab-pane fade" id="@($"page-{p.pageNumber}")" role="tabpanel">
-                                <div class="row mt-2 mb-2 border-bottom">
-                                    <div class="col-4">Version</div>
-                                    @foreach (var v in L)
+                    <div class="tab-content" id="version-content">
+                        <div class="tab-pane fade" id="po-options" role="tabpanel">
+                            <nav>
+                                <ul class="nav nav-tabs" id="po-pages" role="presentation">
+                                    @foreach (var p in T.poPrompt.tabPages)
                                     {
-                                        <div class="col border-start">@v.reportVersion</div>
+                                        <li class="nav-item">
+                                            <button class="nav-link"
+                                        id="@($"page-{p.pageNumber}-tab")"
+                                        role="tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="@($"#page-{p.pageNumber}")">
+                                                @p.title
+                                            </button>
+                                        </li>
+                                    }
+                                </ul>
+                                <div class="tab-content" id="po-pages-content">
+                                    @foreach (var p in T.poPrompt.tabPages)
+                                    {
+                                        <div class="tab-pane fade" id="@($"page-{p.pageNumber}")" role="tabpanel">
+                                            <div class="row mt-2 mb-2 border-bottom">
+                                                <div class="col-4">Version</div>
+                                                @foreach (var v in L)
+                                                {
+                                                    <div class="col border-start">@v.reportVersion</div>
+                                                }
+                                            </div>
+                                            @foreach (var c in p.controls)
+                                            {
+                                                <div class="row">
+                                                    <pre class="col-4">@c.title</pre>
+                                                    @foreach (var v in L)
+                                                    {
+                                                        <div class="col border-start"><pre>@(PoValue(v, c.idObject))</pre> </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
                                     }
                                 </div>
-                                @foreach (var c in p.controls)
-                                {
-                                    <div class="row">
-                                        <pre class="col-4">@c.title</pre>
-                                        @foreach (var v in L)
-                                        {
-                                            <div class="col border-start"><pre>@(PoValue(v, c.idObject))</pre> </div>
-                                        }
+                            </nav>
+                        </div>
+                        <div class="tab-pane fade" id="data-options" role="tabpanel">
+                            <nav>
+                                <ul class="nav nav-tabs" id="data-pages" role="presentation">
+                                    <li class="nav-item">
+                                        <button class="nav-link"
+                                        id="selection-tab"
+                                        role="tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#selection">
+                                            Selection
+                                        </button>
+                                    </li>
+                                    <li class="nav-item">
+                                        <button class="nav-link"
+                                        id="sequence-tab"
+                                        role="tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#sequence">
+                                            Sequence
+                                        </button>
+                                    </li>
+                                    <li class="nav-item">
+                                        <button class="nav-link"
+                                        id="columns-tab"
+                                        role="tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#columns">
+                                            Columns
+                                        </button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="data-pages-content">
+                                    <div class="tab-pane fade" id="selection" role="tabpanel">
+                                        <div class="row mt-2 mb-2 border-bottom">
+                                            @foreach (var v in L)
+                                            {
+                                                <div class="col border-start">@v.reportVersion</div>
+                                            }
+                                        </div>
+                                        <div class="row">
+                                            @foreach (var v in L)
+                                            {
+                                                if (v.dataSelection.criteria is null)
+                                                {
+                                                    <div class="col border-start font-monospace">
+                                                        <em>No Data Selection</em>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col border-start font-monospace">
+                                                        @foreach (var c in v.dataSelection.criteria)
+                                                        {
+                                                            <div class="row">
+                                                                <div class="col">
+                                                                    @($"{c.subject.table}.{c.subject.dictItem}")
+                                                                </div>
+                                                                <div class="col">
+                                                                    @c.comparisonType
+                                                                </div>
+                                                                <div class="col">
+                                                                    @if (c.predicate.values is not null)
+                                                                    {
+                                                                        foreach (var l in c.predicate.values)
+                                                                        {
+                                                                            @l
+                                                                        }
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
                                     </div>
+                                    <div class="tab-pane fade" id="sequence" role="tabpanel">
+                                        <div class="row mt-2 mb-2 border-bottom">
+                                            @foreach (var v in L)
+                                            {
+                                                <div class="col border-start">@v.reportVersion</div>
+                                            }
+                                        </div>
+                                        <div class="row">
+                                            @foreach (var v in L)
+                                            {
+                                                if (v.dataSequence.orderByColumns is null)
+                                                {
+                                                    <div class="col border-start font-monospace">
+                                                        <em>No Data Sequence</em>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col border-start font-monospace">
+                                                        @foreach (var o in v.dataSequence.orderByColumns)
+                                                        {
+                                                            <div class="row">
+                                                                <div class="col">@($"{o.direction} {o.table}.{o.dictItem}")</div>
+                                                                <div class="col fw-light">@($"{(o.levelBreak ? "Lvbr" : string.Empty)} {(o.pageBreak ? "Pgbr" : string.Empty)}")</div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="tab=pane fade" id="columns" role="tabpanel">
+                                        <div class="row mt-2 mb-2 border-bottom">
+                                            @foreach (var v in L)
+                                            {
+                                                <div class="col border-start">@v.reportVersion</div>
+                                            }
+                                        </div>
+                                        <div class="row">
+                                            @foreach (var v in L)
+                                            {
+                                                if (v.dataSelectionColumns is null)
+                                                {
+                                                    <em>No Columns</em>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col border-start font-monospace">
+                                                        @foreach (var c in v.dataSelectionColumns)
+                                                        {
+                                                            <div class="row">
+                                                                <div class="col-4">
+                                                                    @($"{c.table}.{c.dictItem}")
+                                                                </div>
+                                                                <div class="col">
+                                                                    @c.displayString
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
+                        <div class="tab-pane fade" id="about" role="tabpanel">
+                            <div class="row mt-2 mb-2 border-bottom">
+                                <div class="col-2">
+                                    Versions
+                                </div>
+                                @foreach (var v in L)
+                                {
+                                    <div class="col border-start">@v.reportVersion</div>
                                 }
                             </div>
-                        }
+                            <div class="row">
+                                <div class="col-2">Security</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-2 pl-2 border-left">Change PO</div>
+                                @foreach (var v in L)
+                                {
+                                    <div class="col border-left">@(v.reportSecurity.canChangePO ? "Yes" : "No")</div>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-2 pl-2 border-left">Run PO</div>
+                                @foreach (var v in L)
+                                {
+                                    <div class="col border-left">@(v.reportSecurity.canRunPO ? "Yes" : "No")</div>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-2 pl-2 border-left">Run Data Selection</div>
+                                @foreach (var v in L)
+                                {
+                                    <div class="col border-left">@(v.reportSecurity.canRunDataSelection ? "Yes" : "No")</div>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-2 pl-2 border-left">Fulll Data Selection</div>
+                                @foreach (var v in L)
+                                {
+                                    <div class="col border-left">@(v.reportSecurity.hasFullDataSelectionAccess ? "Yes" : "No")</div>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-2 pl-2 border-left">Add Data Selection</div>
+                                @foreach (var v in L)
+                                {
+                                    <div class="col border-left">@(v.reportSecurity.canAddDataSelection ? "Yes" : "No")</div>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-2 pl-2 border-left">Modify Data Selection</div>
+                                @foreach (var v in L)
+                                {
+                                    <div class="col border-left">@(v.reportSecurity.canModifyDataSelection? "Yes" : "No")</div>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </nav>
             }

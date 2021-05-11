@@ -7489,10 +7489,16 @@ textarea.form-control-lg {
   overflow: auto;
   max-height: calc(100vh - 72px); }
 
-.tab-pane {
+#po-options {
   overflow: auto;
-  max-height: calc(100vh - 190px); }
-  .tab-pane .row {
+  max-height: calc(100vh - 220px); }
+  #po-options .row {
+    margin-right: 0px; }
+
+#columns {
+  overflow: auto;
+  max-height: calc(100vh - 240px); }
+  #columns .row {
     margin-right: 0px; }
 
 #overlay {

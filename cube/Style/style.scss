@@ -10,9 +10,17 @@
     max-height: calc(100vh - 72px);
 }
 
-.tab-pane {
+#po-options {
     overflow: auto;
-    max-height: calc(100vh - 190px);
+    max-height: calc(100vh - 220px);
+    .row {
+        margin-right: 0px;
+    }
+}
+
+#columns {
+    overflow: auto;
+    max-height: calc(100vh - 240px);
     .row {
         margin-right: 0px;
     }
